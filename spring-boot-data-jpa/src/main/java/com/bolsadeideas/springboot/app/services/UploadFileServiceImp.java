@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service("UploadService")
@@ -27,14 +28,14 @@ public class UploadFileServiceImp implements IUploadFileService {
 
 	@Override
 	public Resource load(String filename) throws MalformedURLException {
-		Path pathImagen = Paths.get(filename);
+		Path pathImage = Paths.get(filename);
 
-		log.info("pathImagen: " + pathImagen);
+		log.info("pathImage: " + pathImage);
 		Resource resource = null; // org.springframework.core.io.UrlResource
 
-		resource = new UrlResource(pathImagen.toUri());
+		resource = new UrlResource(pathImage.toUri());
 		if (!resource.exists() && !resource.isReadable()) {
-			throw new RuntimeException("Error: no se puede cargar la imagen: " + pathImagen);
+			throw new RuntimeException("Error: no se puede cargar la imagen: " + pathImage);
 		}
 		return resource;
 	}
@@ -46,7 +47,7 @@ public class UploadFileServiceImp implements IUploadFileService {
 
 		log.info("rootPath: " + rootPath);
 
-		byte[] bytes = file.getBytes();
+		//byte[] bytes = file.getBytes();
 		Files.copy(file.getInputStream(), rootPath);
 
 		return uniqueFile;
@@ -55,7 +56,7 @@ public class UploadFileServiceImp implements IUploadFileService {
 	@Override
 	public boolean delete(String filename) {
 
-		Path rootPath = getPath(filename);
+		Path rootPath = Paths.get(filename);
 		File archive = rootPath.toFile();
 
 		if (archive.exists() && archive.canRead()) {
@@ -73,6 +74,19 @@ public class UploadFileServiceImp implements IUploadFileService {
 	public Path getPath(String filename) { 
 		
 		return Paths.get(UPLOAD_FOLDER).resolve(filename).toAbsolutePath();
+	}
+
+	@Override
+	public void deleteAllUpload() {
+
+		FileSystemUtils.deleteRecursively(Paths.get(UPLOAD_FOLDER).toFile());
+	}
+
+	@Override
+	public void initDirectoryUpload() throws IOException {
+		
+		Files.createDirectory(Paths.get(UPLOAD_FOLDER));
+		
 	}
 
 }

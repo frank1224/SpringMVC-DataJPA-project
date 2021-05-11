@@ -16,5 +16,15 @@ public interface IUploadFileService {
 	public String copy(MultipartFile file) throws IOException;
 
 	public boolean delete(String filename);
+	
+	/*
+	 * elimina todo el directorio de manera recursiva.
+	 */
+	public void deleteAllUpload();
+	
+	/*
+	 * Crea el directorio upload.
+	 */
+	public void initDirectoryUpload() throws IOException;
 
 }
